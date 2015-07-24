@@ -1,10 +1,12 @@
 // Copyright 2015 Byungkuk
 
+#include <MLGaussian/gaussianinterpolation.h>
+#include <MLGaussian/gaussianinterpolationnoisy.h>
+
 #include <QtWidgets/QApplication>
 #include <algorithm>
 #include <iostream>
 #include <vector>
-#include <MLGaussian/gaussianinterpolation.h>
 
 #include "plotter.h"
 
@@ -24,15 +26,30 @@ int main(int argc, char* argv[]) {
   time_series_map.insert(ML::MakeTimeSample(99, 2, 5.0f, 3.0f));
 
   ML::GaussianInterpolation g_interp(100, time_series_map);
+  ML::GaussianInterpolationNoisy g_interp_noisy(100, time_series_map);
 
   ML::MatNxN mu, sigma;
   g_interp.solve(0.1f, &mu /*, &sigma*/);
 
-  ML::MatNxN C(100, 2);
-  //  ML::MatNxN R(100, 3);
-  for (int i = 0; i < 100; ++i) C.row(i) = mu.row(i);
+  ML::MatNxN mu2, sigma2;
+  g_interp_noisy.solve(30.0f, &mu2, &sigma2);
 
+  ML::MatNxN C(100, 2);
+  ML::MatNxN C2(100, 2);
+  //  ML::MatNxN R(100, 3);
+  for (int i = 0; i < 100; ++i) {
+    C.row(i) = mu.row(i);
+    C2.row(i) = mu2.row(i);
+  }
+
+  int i = 0;
+  ML::MatNxN P(time_series_map.size(), 2);
+  for (auto it : time_series_map) {
+    P.row(i++) = it.second.transpose();
+  }
   w.setCurveData(0, C);
+  w.setCurveData(1, C2);
+  w.setPointData(2, P);
   w.show();
 
   return a.exec();

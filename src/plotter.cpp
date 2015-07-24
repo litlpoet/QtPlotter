@@ -29,7 +29,7 @@ class Plotter::Imple {
   QRect _rubberband_rect;
   QPixmap _pixmap;
 
-  explicit Imple()
+  Imple()
       : _is_rubburband_shown(false),
         _cur_zoom_idx(0),
         _btn_zoomin(NULL),

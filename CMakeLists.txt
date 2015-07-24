@@ -7,7 +7,14 @@ add_subdirectory(${LIBML_DIR} ${CMAKE_BINARY_DIR}/libML)
 include_directories(SYSTEM ${LIBML_DIR})
 
 ## plotter setting
-list(APPEND CMAKE_PREFIX_PATH "c:/Local/msys64/mingw64/qt5-static/")
+if (WIN32)
+  list(APPEND CMAKE_PREFIX_PATH "c:/Local/msys64/mingw64/qt5-static/")
+  set(EIGEN3_DIR "c:/Local/include/eigen3")
+else()
+  list(APPEND CMAKE_PREFIX_PATH "/opt/qt5/5.5/gcc_64/")
+  set(EIGEN3_DIR "/usr/local/include/eigen3")
+endif()
+
 find_package(Qt5Core)
 find_package(Qt5Gui)
 find_package(Qt5Widgets)
@@ -32,12 +39,6 @@ if (NOT CONFIGURED_ONCE)
     CACHE STRING
     "C flags used by the compiler during all build types."
     FORCE)
-endif()
-
-if (WIN32)
-  set(EIGEN3_DIR "c:/Local/include/eigen3")
-else()
-  set(EIGEN3_DIR "/usr/local/include/eigen3")
 endif()
 
 include_directories(

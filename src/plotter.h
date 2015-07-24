@@ -1,7 +1,7 @@
 // Copyright 2015 Byungkuk Choi
 
-#ifndef PLOTTER_HPP
-#define PLOTTER_HPP
+#ifndef SRC_PLOTTER_H_
+#define SRC_PLOTTER_H_
 
 #include <QtWidgets/QWidget>
 #include <Eigen/Core>
@@ -63,4 +63,4 @@ class Plotter : public QWidget {
   QScopedPointer<Imple> _p;
 };
 
-#endif  // PLOTTER_HPP
+#endif  // SRC_PLOTTER_H_
