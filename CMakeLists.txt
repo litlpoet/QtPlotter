@@ -8,7 +8,7 @@ include_directories(SYSTEM ${LIBML_DIR})
 
 ## plotter setting
 if (WIN32)
-  list(APPEND CMAKE_PREFIX_PATH "c:/Local/msys64/mingw64/qt5-static/")
+  list(APPEND CMAKE_PREFIX_PATH "c:/Local/msys64/mingw64/")
   set(EIGEN3_DIR "c:/Local/include/eigen3")
 else()
   list(APPEND CMAKE_PREFIX_PATH "/opt/qt5/5.5/gcc_64/")
@@ -46,7 +46,7 @@ include_directories(
   ${EIGEN3_DIR}
   )
 
-file(GLOB SOURCES src/*cpp)
+file(GLOB SOURCES src/*.cpp)
 add_executable(Plotter ${SOURCES})
 qt5_use_modules(Plotter Core Gui Widgets)
 target_link_libraries(Plotter MLCore MLGaussian)

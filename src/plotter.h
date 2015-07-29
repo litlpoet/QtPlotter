@@ -30,7 +30,7 @@ class Plotter : public QWidget {
 
   void setPointData(const int& id, const MatrixXf& data);
 
-  void crearCurve(const int& id);
+  void clearCurve(const int& id);
 
   QSize minimumSizeHint() const;
 
@@ -44,19 +44,19 @@ class Plotter : public QWidget {
  protected:
   void refreshPixmap();
 
-  void paintEvent(QPaintEvent* event);
+  virtual void paintEvent(QPaintEvent* event);
 
-  void resizeEvent(QResizeEvent* event);
+  virtual void resizeEvent(QResizeEvent* event);
 
-  void mousePressEvent(QMouseEvent* event);
+  virtual void mousePressEvent(QMouseEvent* event);
 
-  void mouseMoveEvent(QMouseEvent* event);
+  virtual void mouseMoveEvent(QMouseEvent* event);
 
-  void mouseReleaseEvent(QMouseEvent* event);
+  virtual void mouseReleaseEvent(QMouseEvent* event);
 
-  void keyPressEvent(QKeyEvent* event);
+  virtual void keyPressEvent(QKeyEvent* event);
 
-  void wheelEvent(QWheelEvent* event);
+  virtual void wheelEvent(QWheelEvent* event);
 
  private:
   class Imple;

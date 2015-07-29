@@ -2,14 +2,15 @@
 
 #include "plotter.h"
 
-#include <QDebug>
-#include <QMap>
-#include <QMouseEvent>
-#include <QPixmap>
-#include <QStyleOptionFocusRect>
-#include <QStylePainter>
-#include <QToolButton>
-#include <QVector>
+#include <QtCore/QDebug>
+#include <QtCore/QMap>
+#include <QtCore/QVector>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QPixmap>
+#include <QtWidgets/QStyleOptionFocusRect>
+#include <QtWidgets/QStylePainter>
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QSlider>
 
 #include "plotsetting.h"
 
@@ -32,8 +33,9 @@ class Plotter::Imple {
   Imple()
       : _is_rubburband_shown(false),
         _cur_zoom_idx(0),
-        _btn_zoomin(NULL),
-        _btn_zoomout(NULL) {}
+        _btn_zoomin(nullptr),
+        _btn_zoomout(nullptr)
+        {}
 
   ~Imple() {}
 
@@ -87,7 +89,7 @@ void Plotter::setPointData(const int& id, const Eigen::MatrixXf& data) {
   refreshPixmap();
 }
 
-void Plotter::crearCurve(const int& id) {
+void Plotter::clearCurve(const int& id) {
   _p->_curve_map.remove(id);
   refreshPixmap();
 }
@@ -115,6 +117,21 @@ void Plotter::zoomOut() {
   _p->_btn_zoomin->show();
   refreshPixmap();
 }
+
+// void Plotter::changeWeight() {
+//   if (!_p->_w_slider || !_interp) return;
+
+//   float w = static_cast<float>(_p->_w_slider->value()) / 20;
+//   qDebug() << "Current Weight: " << w;
+//   qDebug() << "CurveMap Size: " << _p->_curve_map.size();
+//   MatrixXf mu;
+//   MatrixXf var;
+//   _interp->solve(w, &mu, &var);
+//   crearCurve(0);
+//   setCurveData(0, mu);
+//   qDebug() << "Mean size:" << mu.rows() << "by" << mu.cols();
+//   refreshPixmap();
+// }
 
 void Plotter::refreshPixmap() {
   _p->_pixmap = QPixmap(size());
