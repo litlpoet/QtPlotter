@@ -1,6 +1,6 @@
 // Copyright 2015 Byungkuk Choi
 
-#include "plotter.h"
+#include "plotter/plotter.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QMap>
@@ -12,7 +12,7 @@
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QSlider>
 
-#include "plotsetting.h"
+#include "plotter/plotsetting.h"
 
 const QColor Plotter::colors[6] = {Qt::red,  Qt::green,   Qt::blue,
                                    Qt::cyan, Qt::magenta, Qt::yellow};
@@ -34,8 +34,7 @@ class Plotter::Imple {
       : _is_rubburband_shown(false),
         _cur_zoom_idx(0),
         _btn_zoomin(nullptr),
-        _btn_zoomout(nullptr)
-        {}
+        _btn_zoomout(nullptr) {}
 
   ~Imple() {}
 
@@ -117,21 +116,6 @@ void Plotter::zoomOut() {
   _p->_btn_zoomin->show();
   refreshPixmap();
 }
-
-// void Plotter::changeWeight() {
-//   if (!_p->_w_slider || !_interp) return;
-
-//   float w = static_cast<float>(_p->_w_slider->value()) / 20;
-//   qDebug() << "Current Weight: " << w;
-//   qDebug() << "CurveMap Size: " << _p->_curve_map.size();
-//   MatrixXf mu;
-//   MatrixXf var;
-//   _interp->solve(w, &mu, &var);
-//   crearCurve(0);
-//   setCurveData(0, mu);
-//   qDebug() << "Mean size:" << mu.rows() << "by" << mu.cols();
-//   refreshPixmap();
-// }
 
 void Plotter::refreshPixmap() {
   _p->_pixmap = QPixmap(size());

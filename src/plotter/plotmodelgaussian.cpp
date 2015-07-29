@@ -1,10 +1,12 @@
-#include "plotmodelgaussian.h"
+// Copyright (c) 2015 Byungkuk Choi
 
+#include "plotter/plotmodelgaussian.h"
+
+#include <MLGaussian/gaussianinterpolationnoisy.h>
 #include <vector>
 #include <algorithm>
-#include <MLGaussian/gaussianinterpolationnoisy.h>
 
-#include "observer.h"
+#include "plotter/observer.h"
 
 class PlotModelGaussian::Imple {
  public:
@@ -46,15 +48,17 @@ void PlotModelGaussian::solve(const float& lambda) {
 int PlotModelGaussian::getDataDimension() { return _p->_Mu.cols(); }
 
 void PlotModelGaussian::get1dCurve(const int& d, const float& end_time,
-                                   ML::MatNxN& C) {
+                                   ML::MatNxN* C) {
   if (_p->_Mu.cols() <= d) return;
-  C.resize(_p->_Mu.rows(), 2);
-  C << ML::VecN::LinSpaced(_p->_Mu.rows(), 0.0, end_time), _p->_Mu.col(d);
+  C->resize(_p->_Mu.rows(), 2);
+  (*C) << ML::VecN::LinSpaced(_p->_Mu.rows(), 0.0, end_time), _p->_Mu.col(d);
 }
 
-void PlotModelGaussian::getMean(ML::MatNxN& Mu) { Mu = _p->_Mu; }
+void PlotModelGaussian::getMean(ML::MatNxN* Mu) { (*Mu) = _p->_Mu; }
 
-void PlotModelGaussian::getVariance(ML::MatNxN& Sigma) { Sigma = _p->_Sigma; }
+void PlotModelGaussian::getVariance(ML::MatNxN* Sigma) {
+  (*Sigma) = _p->_Sigma;
+}
 
 void PlotModelGaussian::registerObserver(Observer* observer) {
   _p->_observers.push_back(observer);

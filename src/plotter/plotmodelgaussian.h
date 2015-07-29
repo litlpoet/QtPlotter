@@ -1,9 +1,10 @@
-#ifndef PLOTMODELGAUSSIAN_H_
-#define PLOTMODELGAUSSIAN_H_
+// Copyright (c) 2015 Byungkuk Choi
 
-#include "plotmodelinterface.h"
+#ifndef SRC_PLOTTER_PLOTMODELGAUSSIAN_H_
+#define SRC_PLOTTER_PLOTMODELGAUSSIAN_H_
 
 #include <memory>
+#include "plotter/plotmodelinterface.h"
 
 class PlotModelGaussian : public PlotModelInterface {
  public:
@@ -20,11 +21,11 @@ class PlotModelGaussian : public PlotModelInterface {
 
   int getDataDimension() final;
 
-  void get1dCurve(const int& d, const float& end_time, ML::MatNxN& C) final;
+  void get1dCurve(const int& d, const float& end_time, ML::MatNxN* C) final;
 
-  void getMean(ML::MatNxN& Mu) final;
+  void getMean(ML::MatNxN* Mu) final;
 
-  void getVariance(ML::MatNxN& Sigma) final;
+  void getVariance(ML::MatNxN* Sigma) final;
 
   void registerObserver(Observer* observer) final;
 
@@ -38,4 +39,4 @@ class PlotModelGaussian : public PlotModelInterface {
   std::unique_ptr<Imple> _p;
 };
 
-#endif  // PLOTMODELGAUSSIAN_H_
+#endif  // SRC_PLOTTER_PLOTMODELGAUSSIAN_H_

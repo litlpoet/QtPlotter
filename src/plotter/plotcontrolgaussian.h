@@ -1,15 +1,16 @@
-#ifndef PLOTCONTROLGAUSSAIN_H_
-#define PLOTCONTROLGAUSSAIN_H_
+// Copyright (c) 2015 Byungkuk Choi
 
-#include "plotcontrolinterface.h"
+#ifndef SRC_PLOTTER_PLOTCONTROLGAUSSIAN_H_
+#define SRC_PLOTTER_PLOTCONTROLGAUSSIAN_H_
 
 #include <memory>
+#include "plotter/plotcontrolinterface.h"
 
 class PlotModelInterface;
 
 class PlotControlGaussian : public PlotControlInterface {
  public:
-  PlotControlGaussian(PlotModelInterface* model);
+  explicit PlotControlGaussian(PlotModelInterface* model);
 
   ~PlotControlGaussian();
 
@@ -24,4 +25,4 @@ class PlotControlGaussian : public PlotControlInterface {
   std::unique_ptr<Imple> _p;
 };
 
-#endif  // PLOTCONTROLGAUSSAIN_H_
+#endif  // SRC_PLOTTER_PLOTCONTROLGAUSSIAN_H_

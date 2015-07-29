@@ -1,5 +1,7 @@
-#ifndef PLOTMODELINTERFACE_H_
-#define PLOTMODELINTERFACE_H_
+// Copyright (c) 2015 Byungkuk Choi
+
+#ifndef SRC_PLOTTER_PLOTMODELINTERFACE_H_
+#define SRC_PLOTTER_PLOTMODELINTERFACE_H_
 
 #include <MLCore/mathtypes.h>
 
@@ -25,15 +27,15 @@ class PlotModelInterface {
   virtual int getDataDimension() = 0;
 
   virtual void get1dCurve(const int& d, const float& end_time,
-                          ML::MatNxN& C) = 0;
+                          ML::MatNxN* C) = 0;
 
-  virtual void getMean(ML::MatNxN& Mu) = 0;
+  virtual void getMean(ML::MatNxN* Mu) = 0;
 
-  virtual void getVariance(ML::MatNxN& Sigma) = 0;
+  virtual void getVariance(ML::MatNxN* Sigma) = 0;
 
   virtual void registerObserver(Observer* observer) = 0;
 
   virtual void removeObserver(Observer* observer) = 0;
 };
 
-#endif  // PLOTMODELINTERFACE_H_
+#endif  // SRC_PLOTTER_PLOTMODELINTERFACE_H_

@@ -17,4 +17,5 @@
 -I/home/bk/VersionControl/Libraries/gmock/include/
 -I/home/bk/VersionControl/Libraries/gmock/gtest/include/
 -I/home/bk/VersionControl/Research/libML/
+-I/home/bk/VersionControl/Research/QtPlotter/src/
 

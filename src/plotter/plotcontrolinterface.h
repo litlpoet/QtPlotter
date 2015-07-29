@@ -1,5 +1,7 @@
-#ifndef PLOTCONTROLINTERFACE_H_
-#define PLOTCONTROLINTERFACE_H_
+// Copyright (c) 2015 Byungkuk Choi
+
+#ifndef SRC_PLOTTER_PLOTCONTROLINTERFACE_H_
+#define SRC_PLOTTER_PLOTCONTROLINTERFACE_H_
 
 class PlotControlInterface {
  public:
@@ -14,4 +16,4 @@ class PlotControlInterface {
   virtual void setPrecision(const float& w) = 0;
 };
 
-#endif  // PLOTCONTROLINTERFACE_H_
+#endif  // SRC_PLOTTER_PLOTCONTROLINTERFACE_H_

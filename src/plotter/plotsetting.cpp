@@ -1,4 +1,6 @@
-#include "plotsetting.h"
+// Copyright (c) 2015 Byungkuk Choi
+
+#include "plotter/plotsetting.h"
 
 class PlotSetting::Imple {
  public:
@@ -9,9 +11,15 @@ class PlotSetting::Imple {
   float _min_y;
   float _max_y;
 
-  Imple();
+  Imple()
+      : _n_x_ticks(5),
+        _n_y_ticks(5),
+        _min_x(0.f),
+        _max_x(10.f),
+        _min_y(0.f),
+        _max_y(10.f) {}
 
-  ~Imple();
+  ~Imple() {}
 
   void clone(const PlotSetting& other) {
     _n_x_ticks = other.numberOfXTicks();
@@ -31,8 +39,7 @@ class PlotSetting::Imple {
     else if (2 * step < gross_step)
       step *= 2;
 
-    *ticks =
-        static_cast<int>(ceilf(*max / step) - floorf(*min / step));
+    *ticks = static_cast<int>(ceilf(*max / step) - floorf(*min / step));
     if (*ticks < MinTicks) *ticks = MinTicks;
 
     *min = floorf(*min / step) * step;
@@ -92,13 +99,3 @@ PlotSetting& PlotSetting::operator=(const PlotSetting& other) {
   _p->clone(other);
   return *this;
 }
-
-PlotSetting::Imple::Imple()
-    : _n_x_ticks(5),
-      _n_y_ticks(5),
-      _min_x(0.f),
-      _max_x(10.f),
-      _min_y(0.f),
-      _max_y(10.f) {}
-
-PlotSetting::Imple::~Imple() {}

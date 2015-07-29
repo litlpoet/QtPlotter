@@ -1,14 +1,16 @@
-#include "plotcontrolgaussian.h"
+// Copyright (c) 2015 Byungkuk Choi
 
-#include "plotmodelinterface.h"
-#include "plotviewgaussian.h"
+#include "plotter/plotcontrolgaussian.h"
+
+#include "plotter/plotmodelinterface.h"
+#include "plotter/plotviewgaussian.h"
 
 class PlotControlGaussian::Imple {
  public:
   PlotModelInterface* _model;
   PlotViewGaussian* _view;
 
-  Imple(PlotModelInterface* model) : _model(model), _view(nullptr) {}
+  explicit Imple(PlotModelInterface* model) : _model(model), _view(nullptr) {}
 
   ~Imple() {}
 };

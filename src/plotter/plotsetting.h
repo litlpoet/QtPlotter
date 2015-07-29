@@ -1,9 +1,9 @@
 // Copyright 2015 Byungkuk Choi
 
-#ifndef PLOTSETTING_HPP
-#define PLOTSETTING_HPP
+#ifndef SRC_PLOTTER_PLOTSETTING_H_
+#define SRC_PLOTTER_PLOTSETTING_H_
 
-#include <QScopedPointer>
+#include <QtCore/QScopedPointer>
 
 class PlotSetting {
  public:
@@ -50,4 +50,4 @@ class PlotSetting {
   QScopedPointer<Imple> _p;
 };
 
-#endif  // PLOTSETTING_HPP
+#endif  // SRC_PLOTTER_PLOTSETTING_H_

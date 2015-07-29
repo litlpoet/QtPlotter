@@ -8,8 +8,8 @@
 #include <iostream>
 #include <vector>
 
-#include "plotmodelgaussian.h"
-#include "plotcontrolgaussian.h"
+#include "plotter/plotmodelgaussian.h"
+#include "plotter/plotcontrolgaussian.h"
 
 int main(int argc, char* argv[]) {
   QApplication a(argc, argv);

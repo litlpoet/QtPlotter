@@ -1,12 +1,13 @@
-#include "plotviewgaussian.h"
+// Copyright (c) 2015 Byungkuk Choi
+#include "plotter/plotviewgaussian.h"
 
-#include <iostream>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QLabel>
+#include <iostream>
 
-#include "plotmodelinterface.h"
-#include "plotcontrolinterface.h"
+#include "plotter/plotmodelinterface.h"
+#include "plotter/plotcontrolinterface.h"
 
 class PlotViewGaussian::Imple {
  public:
@@ -59,7 +60,7 @@ PlotViewGaussian::~PlotViewGaussian() {}
 void PlotViewGaussian::update() {
   ML::MatNxN C;
   for (int i = 0, n = _p->_model->getDataDimension(); i < n; ++i) {
-    _p->_model->get1dCurve(i, 10.0f, C);
+    _p->_model->get1dCurve(i, 10.0f, &C);
     clearCurve(i);
     setCurveData(i, C);
   }

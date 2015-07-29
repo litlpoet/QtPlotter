@@ -1,10 +1,11 @@
-#ifndef PLOTVIEWGAUSSIAN_H_
-#define PLOTVIEWGAUSSIAN_H_
+// Copyright (c) 2015 Byungkuk Choi.
 
-#include "observer.h"
-#include "plotter.h"
+#ifndef SRC_PLOTTER_PLOTVIEWGAUSSIAN_H_
+#define SRC_PLOTTER_PLOTVIEWGAUSSIAN_H_
 
 #include <memory>
+#include "plotter/observer.h"
+#include "plotter/plotter.h"
 
 class PlotModelInterface;
 class PlotControlInterface;
@@ -33,4 +34,4 @@ class PlotViewGaussian : public Observer, public Plotter {
   std::unique_ptr<Imple> _p;
 };
 
-#endif  // PLOTVIEWGAUSSIAN_H_
+#endif  // SRC_PLOTTER_PLOTVIEWGAUSSIAN_H_

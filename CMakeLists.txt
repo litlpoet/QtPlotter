@@ -46,8 +46,8 @@ include_directories(
   ${EIGEN3_DIR}
   )
 
-file(GLOB SOURCES src/*.cpp)
-add_executable(Plotter ${SOURCES})
+file(GLOB SOURCES src/plotter/*.cpp)
+add_executable(Plotter src/main.cpp ${SOURCES})
 qt5_use_modules(Plotter Core Gui Widgets)
 target_link_libraries(Plotter MLCore MLGaussian)
 target_compile_features(Plotter PRIVATE cxx_range_for)
