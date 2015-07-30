@@ -1,1 +1,1 @@
-.dir-locals-linux.el
+.dir-locals-win.el

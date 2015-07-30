@@ -45,7 +45,24 @@ void PlotModelGaussian::solve(const float& lambda) {
   notifyObservers();
 }
 
-int PlotModelGaussian::getDataDimension() { return _p->_Mu.cols(); }
+int PlotModelGaussian::getTimeDimension() {
+  return _p->_g_interp_noisy->dimension();
+}
+
+int PlotModelGaussian::getDataDimension() {
+  return _p->_g_interp_noisy->sampleDimension();
+}
+
+void PlotModelGaussian::getSample(const int& d, const float& end_time,
+                                  ML::MatNxN* P) {
+  float factor =
+      static_cast<float>(1.0f / _p->_g_interp_noisy->dimension()) * end_time;
+  const ML::TimeSeriesMap& t_s = _p->_g_interp_noisy->timeSeriesMap();
+  P->resize(t_s.size(), 2);
+  int i = 0;
+  for (const auto& it : t_s)
+    P->row(i++) = Eigen::Vector2f(it.first * factor, it.second[d]);
+}
 
 void PlotModelGaussian::get1dCurve(const int& d, const float& end_time,
                                    ML::MatNxN* C) {

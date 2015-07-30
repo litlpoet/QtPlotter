@@ -24,7 +24,12 @@ class PlotModelInterface {
 
   virtual void solve(const float& lambda) = 0;
 
+  virtual int getTimeDimension() = 0;
+  
   virtual int getDataDimension() = 0;
+
+  virtual void getSample(const int& d, const float& end_time,
+                         ML::MatNxN* P) = 0;
 
   virtual void get1dCurve(const int& d, const float& end_time,
                           ML::MatNxN* C) = 0;

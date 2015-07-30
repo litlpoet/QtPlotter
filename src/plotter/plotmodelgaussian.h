@@ -19,7 +19,11 @@ class PlotModelGaussian : public PlotModelInterface {
 
   void solve(const float& lambda) final;
 
+  int getTimeDimension() final;
+
   int getDataDimension() final;
+
+  void getSample(const int& d, const float& end_time, ML::MatNxN* P) final;
 
   void get1dCurve(const int& d, const float& end_time, ML::MatNxN* C) final;
 
