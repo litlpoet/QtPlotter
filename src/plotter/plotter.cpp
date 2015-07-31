@@ -239,11 +239,11 @@ void Plotter::wheelEvent(QWheelEvent* event) {
 
 void Plotter::Imple::createButtons(Plotter* plotter) {
   _btn_zoomin = new QToolButton(plotter);
-  _btn_zoomin->setIcon(QIcon(":/images/zoomin.png"));
+  _btn_zoomin->setIcon(QIcon(":/imgs/zoomin.png"));
   _btn_zoomin->adjustSize();
 
   _btn_zoomout = new QToolButton(plotter);
-  _btn_zoomout->setIcon(QIcon(":/images/zoomout.png"));
+  _btn_zoomout->setIcon(QIcon(":/imgs/zoomout.png"));
   _btn_zoomout->adjustSize();
 
   QObject::connect(_btn_zoomin, &QAbstractButton::clicked, plotter,
