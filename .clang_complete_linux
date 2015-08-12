@@ -16,6 +16,6 @@
 -I/usr/local/include/eigen3/
 -I/home/bk/VersionControl/Libraries/gmock/include/
 -I/home/bk/VersionControl/Libraries/gmock/gtest/include/
--I/home/bk/VersionControl/Research/libML/
--I/home/bk/VersionControl/Research/QtPlotter/src/
+-I/home/bk/VersionControl/Modules/libML/
+-I/home/bk/VersionControl/Modules/QtPlotter/src/
 
