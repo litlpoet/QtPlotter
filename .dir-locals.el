@@ -8,7 +8,7 @@
    (eval
     . (setq-local
        projectile-project-run-cmd
-       (expand-file-name "~/VersionControl/Modules/QtPlotter/build/Plotter")))
+       (expand-file-name "~/VersionControl/Modules/QtPlotter/build/qtplot")))
    )
   )
  )

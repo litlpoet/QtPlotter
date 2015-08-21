@@ -73,7 +73,7 @@ void Plotter::setPlotSetting(const PlotSetting& settings) {
   refreshPixmap();
 }
 
-void Plotter::setRegionData(const int& id, const Eigen::MatrixXf& data) {
+void Plotter::setRegionData(const int& id, const MatrixXf& data) {
   _p->_region_map.insert(id, data);
   refreshPixmap();
 }
@@ -83,7 +83,7 @@ void Plotter::setCurveData(const int& id, const MatrixXf& data) {
   refreshPixmap();
 }
 
-void Plotter::setPointData(const int& id, const Eigen::MatrixXf& data) {
+void Plotter::setPointData(const int& id, const MatrixXf& data) {
   _p->_point_map.insert(id, data);
   refreshPixmap();
 }
@@ -193,8 +193,9 @@ void Plotter::mouseReleaseEvent(QMouseEvent* event) {
 
 void Plotter::keyPressEvent(QKeyEvent* event) {
   PlotSetting& cur_plot_setting = _p->_zoom_stack[_p->_cur_zoom_idx];
-  auto applyScroll = [&cur_plot_setting](const int& dx, const int& dy)
-                         -> void { cur_plot_setting.scroll(dx, dy); };
+  auto applyScroll = [&cur_plot_setting](const int& dx, const int& dy) -> void {
+    cur_plot_setting.scroll(dx, dy);
+  };
 
   switch (event->key()) {
     case Qt::Key_Plus:
@@ -224,8 +225,9 @@ void Plotter::keyPressEvent(QKeyEvent* event) {
 
 void Plotter::wheelEvent(QWheelEvent* event) {
   PlotSetting& cur_plot_setting = _p->_zoom_stack[_p->_cur_zoom_idx];
-  auto applyScroll = [&cur_plot_setting](const int& dx, const int& dy)
-                         -> void { cur_plot_setting.scroll(dx, dy); };
+  auto applyScroll = [&cur_plot_setting](const int& dx, const int& dy) -> void {
+    cur_plot_setting.scroll(dx, dy);
+  };
 
   const int num_ticks = event->delta() / 120;
 
@@ -286,8 +288,8 @@ void Plotter::Imple::drawGrid(Plotter* plotter, QPainter* painter) {
 
   const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
   QPen quite_dark = plotter->palette().dark().color().light();
-  quite_dark.setStyle(Qt::DotLine);
   QPen light = plotter->palette().light().color();
+  quite_dark.setStyle(Qt::DotLine);
 
   const float dx =
       static_cast<float>(rect.width() - 1) / settings.numberOfXTicks();
@@ -413,7 +415,7 @@ void Plotter::Imple::drawPoints(Plotter* plotter, QPainter* painter) {
     const MatrixXf& data = iter.value();
 
     QPen point_pen(colors[id % 6].dark());
-    point_pen.setWidth(2);
+    point_pen.setWidth(1);
     painter->setPen(point_pen);
 
     for (int i = 0; i < data.rows(); ++i) {

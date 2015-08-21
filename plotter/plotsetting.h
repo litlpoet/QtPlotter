@@ -1,14 +1,13 @@
 // Copyright 2015 Byungkuk Choi
 
-#ifndef SRC_PLOTTER_PLOTSETTING_H_
-#define SRC_PLOTTER_PLOTSETTING_H_
+#ifndef PLOTTER_PLOTSETTING_H_
+#define PLOTTER_PLOTSETTING_H_
 
 #include <QtCore/QScopedPointer>
 
 class PlotSetting {
  public:
   enum { MinTicks = 4 };
-
   PlotSetting();
 
   PlotSetting(const PlotSetting& other);
@@ -45,9 +44,12 @@ class PlotSetting {
 
   PlotSetting& operator=(const PlotSetting& other);
 
+ protected:
+  void test();
+
  private:
   class Imple;
   QScopedPointer<Imple> _p;
 };
 
-#endif  // SRC_PLOTTER_PLOTSETTING_H_
+#endif  // PLOTTER_PLOTSETTING_H_
