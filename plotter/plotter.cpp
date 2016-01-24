@@ -7,50 +7,220 @@
 #include <QtCore/QVector>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPixmap>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QStyleOptionFocusRect>
 #include <QtWidgets/QStylePainter>
 #include <QtWidgets/QToolButton>
-#include <QtWidgets/QSlider>
 
 #include "plotter/plotsetting.h"
 
-const QColor Plotter::colors[6] = {Qt::red,  Qt::green,   Qt::blue,
+QColor const Plotter::colors[6] = {Qt::red,  Qt::green,   Qt::blue,
                                    Qt::cyan, Qt::magenta, Qt::yellow};
 
 class Plotter::Imple {
  public:
-  bool _is_rubburband_shown;
-  int _cur_zoom_idx;
-  QToolButton* _btn_zoomin;
-  QToolButton* _btn_zoomout;
+  bool _is_rubburband_shown{false};
+  int _cur_zoom_idx{0};
+  QToolButton* _btn_zoomin{nullptr};
+  QToolButton* _btn_zoomout{nullptr};
   QVector<PlotSetting> _zoom_stack;
-  QMap<int, MatrixXf> _region_map;
-  QMap<int, MatrixXf> _curve_map;
-  QMap<int, MatrixXf> _point_map;
+  QMap<int, MatNxN> _region_map;
+  QMap<int, MatNxN> _curve_map;
+  QMap<int, MatNxN> _point_map;
   QRect _rubberband_rect;
   QPixmap _pixmap;
 
-  Imple()
-      : _is_rubburband_shown(false),
-        _cur_zoom_idx(0),
-        _btn_zoomin(nullptr),
-        _btn_zoomout(nullptr) {}
+  Imple() {}
 
   ~Imple() {}
 
-  void createButtons(Plotter* plotter);
+  void createButtons(Plotter* plotter) {
+    _btn_zoomin = new QToolButton(plotter);
+    _btn_zoomin->setIcon(QIcon(":/imgs/zoomin.png"));
+    _btn_zoomin->adjustSize();
+    _btn_zoomout = new QToolButton(plotter);
+    _btn_zoomout->setIcon(QIcon(":/imgs/zoomout.png"));
+    _btn_zoomout->adjustSize();
 
-  void updateRubberbandRegion(Plotter* plotter);
+    QObject::connect(_btn_zoomin, &QAbstractButton::clicked, plotter,
+                     &Plotter::zoomIn);
+    QObject::connect(_btn_zoomout, &QAbstractButton::clicked, plotter,
+                     &Plotter::zoomOut);
+  }
 
-  void applyZoom(Plotter* plotter, QRect* rect);
+  void updateRubberbandRegion(Plotter* plotter) {
+    QRect rect = _rubberband_rect.normalized();
+    plotter->update(rect.left(), rect.top(), rect.width(), 1);
+    plotter->update(rect.left(), rect.top(), 1, rect.height());
+    plotter->update(rect.left(), rect.bottom(), rect.width(), 1);
+    plotter->update(rect.right(), rect.top(), 1, rect.height());
+  }
 
-  void drawGrid(Plotter* plotter, QPainter* painter);
+  void applyZoom(Plotter* plotter, QRect* rect) {
+    rect->translate(-Margin, -Margin);
 
-  void drawRegion(Plotter* plotter, QPainter* painter);
+    const PlotSetting& prev_setting = _zoom_stack.at(_cur_zoom_idx);
+    PlotSetting new_setting;
+    float dx = prev_setting.spanX() / (plotter->width() - 2 * Margin);
+    float dy = prev_setting.spanY() / (plotter->height() - 2 * Margin);
+    new_setting.setMinX(prev_setting.minX() + dx * rect->left());
+    new_setting.setMaxX(prev_setting.minX() + dx * rect->right());
+    new_setting.setMinY(prev_setting.maxY() - dy * rect->bottom());
+    new_setting.setMaxY(prev_setting.maxY() - dy * rect->top());
+    new_setting.adjust();
 
-  void drawCurves(Plotter* plotter, QPainter* painter);
+    _zoom_stack.resize(_cur_zoom_idx + 1);
+    _zoom_stack.append(new_setting);
+    plotter->zoomIn();
+  }
 
-  void drawPoints(Plotter* plotter, QPainter* painter);
+  void drawGrid(Plotter* plotter, QPainter* painter) {
+    QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
+               plotter->height() - 2 * Margin);
+
+    if (!rect.isValid()) return;
+
+    const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
+    QPen quite_dark = plotter->palette().dark().color().light();
+    QPen light = plotter->palette().light().color();
+    quite_dark.setStyle(Qt::DotLine);
+
+    const float dx =
+        static_cast<float>(rect.width() - 1) / settings.numberOfXTicks();
+    const float dx_t = settings.spanX() / settings.numberOfXTicks();
+
+    for (int i = 0; i <= settings.numberOfXTicks(); ++i) {
+      int x = rect.left() + i * dx;
+      painter->setPen(quite_dark);
+      painter->drawLine(x, rect.top(), x, rect.bottom());
+      painter->setPen(light);
+      painter->drawLine(x, rect.bottom(), x, rect.bottom() + 5);
+      painter->drawText(x - 50, rect.bottom() + 8, 100, 20,
+                        Qt::AlignHCenter | Qt::AlignTop,
+                        QString::number(settings.minX() + i * dx_t));
+    }
+
+    const float dy =
+        static_cast<float>(rect.height() - 1) / settings.numberOfYTicks();
+    const float dy_t = settings.spanY() / settings.numberOfYTicks();
+
+    for (int i = 0; i <= settings.numberOfYTicks(); ++i) {
+      int y = rect.bottom() - i * dy;
+      painter->setPen(quite_dark);
+      painter->drawLine(rect.left(), y, rect.right(), y);
+      painter->setPen(light);
+      painter->drawLine(rect.left() - 5, y, rect.left(), y);
+      painter->drawText(rect.left() - Margin, y - 10, Margin - 7, 20,
+                        Qt::AlignVCenter | Qt::AlignRight,
+                        QString::number(settings.minY() + i * dy_t));
+    }
+
+    painter->drawRect(rect.adjusted(0, 0, -1, -1));
+  }
+
+  void drawRegion(Plotter* plotter, QPainter* painter) {
+    QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
+               plotter->height() - 2 * Margin);
+
+    if (!rect.isValid() || (_region_map.size() == 0)) return;
+
+    painter->setClipRect(rect.adjusted(+1, +1, -1, -1));
+    const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
+
+    QMap<int, MatNxN>::iterator iter = _region_map.begin();
+
+    for (; iter != _region_map.end(); ++iter) {
+      const int& id = iter.key();
+      const MatNxN& data = iter.value();
+
+      QPolygonF polygon(data.rows() * 2);
+
+      for (int i = 0; i < data.rows(); ++i) {
+        float dx = data(i, 0) - settings.minX();
+        float dy = data(i, 1) - settings.minY();
+        float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
+        float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
+        polygon[i] = QPointF(x, y);
+      }
+
+      for (int i = data.rows(), j = data.rows() - 1; i < data.rows() * 2;
+           ++i, --j) {
+        float dx = data(j, 0) - settings.minX();
+        float dy = data(j, 2) - settings.minY();
+        float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
+        float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
+        polygon[i] = QPointF(x, y);
+      }
+
+      QPen region_pen(colors[id % 6].lighter());
+      region_pen.setStyle(Qt::DashLine);
+      QBrush region_brush(colors[id % 6].lighter(), Qt::Dense6Pattern);
+      painter->setBrush(region_brush);
+      painter->setPen(region_pen);
+      painter->drawPolygon(polygon);
+    }
+  }
+
+  void drawCurves(Plotter* plotter, QPainter* painter) {
+    QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
+               plotter->height() - 2 * Margin);
+
+    if (!rect.isValid() || (_curve_map.size() == 0)) return;
+
+    painter->setClipRect(rect.adjusted(+1, +1, -1, -1));
+    const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
+
+    QMap<int, MatNxN>::iterator iter = _curve_map.begin();
+
+    for (; iter != _curve_map.end(); ++iter) {
+      const int& id = iter.key();
+      const MatNxN& data = iter.value();
+
+      QPolygonF poly_line(data.rows());
+
+      for (int i = 0; i < data.rows(); ++i) {
+        float dx = data(i, 0) - settings.minX();
+        float dy = data(i, 1) - settings.minY();
+        float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
+        float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
+        poly_line[i] = QPointF(x, y);
+      }
+
+      QPen curve_pen(colors[id % 6]);
+      curve_pen.setWidth(2);
+      painter->setPen(curve_pen);
+      painter->drawPolyline(poly_line);
+    }
+  }
+
+  void drawPoints(Plotter* plotter, QPainter* painter) {
+    QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
+               plotter->height() - 2 * Margin);
+
+    if (!rect.isValid() || (_point_map.size() == 0)) return;
+
+    painter->setClipRect(rect.adjusted(+1, +1, -1, -1));
+    const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
+
+    QMap<int, MatNxN>::iterator iter = _point_map.begin();
+
+    for (; iter != _point_map.end(); ++iter) {
+      const int& id = iter.key();
+      const MatNxN& data = iter.value();
+
+      QPen point_pen(colors[id % 6].dark());
+      point_pen.setWidth(1);
+      painter->setPen(point_pen);
+
+      for (int i = 0; i < data.rows(); ++i) {
+        float dx = data(i, 0) - settings.minX();
+        float dy = data(i, 1) - settings.minY();
+        float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
+        float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
+        painter->drawEllipse(QPointF(x, y), 5, 5);
+      }
+    }
+  }
 };
 
 Plotter::Plotter(QWidget* parent) : QWidget(parent), _p(new Plotter::Imple()) {
@@ -73,17 +243,17 @@ void Plotter::setPlotSetting(const PlotSetting& settings) {
   refreshPixmap();
 }
 
-void Plotter::setRegionData(const int& id, const MatrixXf& data) {
+void Plotter::setRegionData(const int& id, const MatNxN& data) {
   _p->_region_map.insert(id, data);
   refreshPixmap();
 }
 
-void Plotter::setCurveData(const int& id, const MatrixXf& data) {
+void Plotter::setCurveData(const int& id, const MatNxN& data) {
   _p->_curve_map.insert(id, data);
   refreshPixmap();
 }
 
-void Plotter::setPointData(const int& id, const MatrixXf& data) {
+void Plotter::setPointData(const int& id, const MatNxN& data) {
   _p->_point_map.insert(id, data);
   refreshPixmap();
 }
@@ -161,7 +331,6 @@ void Plotter::mousePressEvent(QMouseEvent* event) {
 
   if (event->button() == Qt::LeftButton) {
     if (!rect.contains(event->pos())) return;
-
     _p->_is_rubburband_shown = true;
     _p->_rubberband_rect.setTopLeft(event->pos());
     _p->_rubberband_rect.setBottomRight(event->pos());
@@ -237,193 +406,4 @@ void Plotter::wheelEvent(QWheelEvent* event) {
     applyScroll(0, num_ticks);
 
   refreshPixmap();
-}
-
-void Plotter::Imple::createButtons(Plotter* plotter) {
-  _btn_zoomin = new QToolButton(plotter);
-  _btn_zoomin->setIcon(QIcon(":/imgs/zoomin.png"));
-  _btn_zoomin->adjustSize();
-
-  _btn_zoomout = new QToolButton(plotter);
-  _btn_zoomout->setIcon(QIcon(":/imgs/zoomout.png"));
-  _btn_zoomout->adjustSize();
-
-  QObject::connect(_btn_zoomin, &QAbstractButton::clicked, plotter,
-                   &Plotter::zoomIn);
-  QObject::connect(_btn_zoomout, &QAbstractButton::clicked, plotter,
-                   &Plotter::zoomOut);
-}
-
-void Plotter::Imple::updateRubberbandRegion(Plotter* plotter) {
-  QRect rect = _rubberband_rect.normalized();
-  plotter->update(rect.left(), rect.top(), rect.width(), 1);
-  plotter->update(rect.left(), rect.top(), 1, rect.height());
-  plotter->update(rect.left(), rect.bottom(), rect.width(), 1);
-  plotter->update(rect.right(), rect.top(), 1, rect.height());
-}
-
-void Plotter::Imple::applyZoom(Plotter* plotter, QRect* rect) {
-  rect->translate(-Margin, -Margin);
-
-  const PlotSetting& prev_setting = _zoom_stack.at(_cur_zoom_idx);
-  PlotSetting new_setting;
-  float dx = prev_setting.spanX() / (plotter->width() - 2 * Margin);
-  float dy = prev_setting.spanY() / (plotter->height() - 2 * Margin);
-  new_setting.setMinX(prev_setting.minX() + dx * rect->left());
-  new_setting.setMaxX(prev_setting.minX() + dx * rect->right());
-  new_setting.setMinY(prev_setting.maxY() - dy * rect->bottom());
-  new_setting.setMaxY(prev_setting.maxY() - dy * rect->top());
-  new_setting.adjust();
-
-  _zoom_stack.resize(_cur_zoom_idx + 1);
-  _zoom_stack.append(new_setting);
-  plotter->zoomIn();
-}
-
-void Plotter::Imple::drawGrid(Plotter* plotter, QPainter* painter) {
-  QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
-             plotter->height() - 2 * Margin);
-
-  if (!rect.isValid()) return;
-
-  const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
-  QPen quite_dark = plotter->palette().dark().color().light();
-  QPen light = plotter->palette().light().color();
-  quite_dark.setStyle(Qt::DotLine);
-
-  const float dx =
-      static_cast<float>(rect.width() - 1) / settings.numberOfXTicks();
-  const float dx_t = settings.spanX() / settings.numberOfXTicks();
-
-  for (int i = 0; i <= settings.numberOfXTicks(); ++i) {
-    int x = rect.left() + i * dx;
-    painter->setPen(quite_dark);
-    painter->drawLine(x, rect.top(), x, rect.bottom());
-    painter->setPen(light);
-    painter->drawLine(x, rect.bottom(), x, rect.bottom() + 5);
-    painter->drawText(x - 50, rect.bottom() + 8, 100, 20,
-                      Qt::AlignHCenter | Qt::AlignTop,
-                      QString::number(settings.minX() + i * dx_t));
-  }
-
-  const float dy =
-      static_cast<float>(rect.height() - 1) / settings.numberOfYTicks();
-  const float dy_t = settings.spanY() / settings.numberOfYTicks();
-
-  for (int i = 0; i <= settings.numberOfYTicks(); ++i) {
-    int y = rect.bottom() - i * dy;
-    painter->setPen(quite_dark);
-    painter->drawLine(rect.left(), y, rect.right(), y);
-    painter->setPen(light);
-    painter->drawLine(rect.left() - 5, y, rect.left(), y);
-    painter->drawText(rect.left() - Margin, y - 10, Margin - 7, 20,
-                      Qt::AlignVCenter | Qt::AlignRight,
-                      QString::number(settings.minY() + i * dy_t));
-  }
-
-  painter->drawRect(rect.adjusted(0, 0, -1, -1));
-}
-
-void Plotter::Imple::drawRegion(Plotter* plotter, QPainter* painter) {
-  QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
-             plotter->height() - 2 * Margin);
-
-  if (!rect.isValid() || (_region_map.size() == 0)) return;
-
-  painter->setClipRect(rect.adjusted(+1, +1, -1, -1));
-  const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
-
-  QMap<int, MatrixXf>::iterator iter = _region_map.begin();
-
-  for (; iter != _region_map.end(); ++iter) {
-    const int& id = iter.key();
-    const MatrixXf& data = iter.value();
-
-    QPolygonF polygon(data.rows() * 2);
-
-    for (int i = 0; i < data.rows(); ++i) {
-      float dx = data(i, 0) - settings.minX();
-      float dy = data(i, 1) - settings.minY();
-      float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
-      float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
-      polygon[i] = QPointF(x, y);
-    }
-
-    for (int i = data.rows(), j = data.rows() - 1; i < data.rows() * 2;
-         ++i, --j) {
-      float dx = data(j, 0) - settings.minX();
-      float dy = data(j, 2) - settings.minY();
-      float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
-      float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
-      polygon[i] = QPointF(x, y);
-    }
-
-    QPen region_pen(colors[id % 6].lighter());
-    region_pen.setStyle(Qt::DashLine);
-    QBrush region_brush(colors[id % 6].lighter(), Qt::Dense6Pattern);
-    painter->setBrush(region_brush);
-    painter->setPen(region_pen);
-    painter->drawPolygon(polygon);
-  }
-}
-
-void Plotter::Imple::drawCurves(Plotter* plotter, QPainter* painter) {
-  QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
-             plotter->height() - 2 * Margin);
-
-  if (!rect.isValid() || (_curve_map.size() == 0)) return;
-
-  painter->setClipRect(rect.adjusted(+1, +1, -1, -1));
-  const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
-
-  QMap<int, MatrixXf>::iterator iter = _curve_map.begin();
-
-  for (; iter != _curve_map.end(); ++iter) {
-    const int& id = iter.key();
-    const MatrixXf& data = iter.value();
-
-    QPolygonF poly_line(data.rows());
-
-    for (int i = 0; i < data.rows(); ++i) {
-      float dx = data(i, 0) - settings.minX();
-      float dy = data(i, 1) - settings.minY();
-      float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
-      float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
-      poly_line[i] = QPointF(x, y);
-    }
-
-    QPen curve_pen(colors[id % 6]);
-    curve_pen.setWidth(2);
-    painter->setPen(curve_pen);
-    painter->drawPolyline(poly_line);
-  }
-}
-
-void Plotter::Imple::drawPoints(Plotter* plotter, QPainter* painter) {
-  QRect rect(Margin, Margin, plotter->width() - 2 * Margin,
-             plotter->height() - 2 * Margin);
-
-  if (!rect.isValid() || (_point_map.size() == 0)) return;
-
-  painter->setClipRect(rect.adjusted(+1, +1, -1, -1));
-  const PlotSetting& settings = _zoom_stack.at(_cur_zoom_idx);
-
-  QMap<int, MatrixXf>::iterator iter = _point_map.begin();
-
-  for (; iter != _point_map.end(); ++iter) {
-    const int& id = iter.key();
-    const MatrixXf& data = iter.value();
-
-    QPen point_pen(colors[id % 6].dark());
-    point_pen.setWidth(1);
-    painter->setPen(point_pen);
-
-    for (int i = 0; i < data.rows(); ++i) {
-      float dx = data(i, 0) - settings.minX();
-      float dy = data(i, 1) - settings.minY();
-      float x = rect.left() + (dx * (rect.width() - 1) / settings.spanX());
-      float y = rect.bottom() - (dy * (rect.height() - 1) / settings.spanY());
-      painter->drawEllipse(QPointF(x, y), 5, 5);
-    }
-  }
 }

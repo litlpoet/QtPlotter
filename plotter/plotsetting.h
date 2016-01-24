@@ -8,13 +8,16 @@
 class PlotSetting {
  public:
   enum { MinTicks = 4 };
+
   PlotSetting();
 
-  PlotSetting(const PlotSetting& other);
+  PlotSetting(PlotSetting const& other);
 
   ~PlotSetting();
 
-  void scroll(const int& dx, const int& dy);
+  PlotSetting& operator=(PlotSetting const& other);
+
+  void scroll(int const& dx, int const& dy);
 
   void adjust();
 
@@ -22,27 +25,25 @@ class PlotSetting {
 
   float spanY() const;
 
-  const int& numberOfXTicks() const;
+  int const& numberOfXTicks() const;
 
-  const int& numberOfYTicks() const;
+  int const& numberOfYTicks() const;
 
-  const float& minX() const;
+  float const& minX() const;
 
-  const float& maxX() const;
+  float const& maxX() const;
 
-  const float& minY() const;
+  float const& minY() const;
 
-  const float& maxY() const;
+  float const& maxY() const;
 
-  void setMinX(const float& min_x);
+  void setMinX(float const& min_x);
 
-  void setMaxX(const float& max_x);
+  void setMaxX(float const& max_x);
 
-  void setMinY(const float& min_y);
+  void setMinY(float const& min_y);
 
-  void setMaxY(const float& max_y);
-
-  PlotSetting& operator=(const PlotSetting& other);
+  void setMaxY(float const& max_y);
 
  protected:
   void test();

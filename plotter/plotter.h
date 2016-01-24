@@ -3,9 +3,10 @@
 #define PLOTTER_PLOTTER_H_
 
 #include <QtWidgets/QWidget>
+
 #include <Eigen/Core>
 
-using Eigen::MatrixXf;
+using MatNxN = Eigen::MatrixXf;
 
 class PlotSetting;
 
@@ -21,15 +22,15 @@ class Plotter : public QWidget {
 
   ~Plotter();
 
-  void setPlotSetting(const PlotSetting& settings);
+  void setPlotSetting(PlotSetting const& settings);
 
-  void setRegionData(const int& id, const MatrixXf& data);
+  void setRegionData(int const& id, MatNxN const& data);
 
-  void setCurveData(const int& id, const MatrixXf& data);
+  void setCurveData(int const& id, MatNxN const& data);
 
-  void setPointData(const int& id, const MatrixXf& data);
+  void setPointData(int const& id, MatNxN const& data);
 
-  void clearCurve(const int& id);
+  void clearCurve(int const& id);
 
   QSize minimumSizeHint() const;
 
