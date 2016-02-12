@@ -26,7 +26,7 @@ class Plotter : public QWidget {
 
   void setRegionData(int const& id, MatNxN const& data);
 
-  void setCurveData(int const& id, MatNxN const& data);
+  void setCurveData(int const& id, MatNxN const& data, int const& col_id = 0);
 
   void setPointData(int const& id, MatNxN const& data);
 

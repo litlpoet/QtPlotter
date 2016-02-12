@@ -27,6 +27,7 @@ class Plotter::Imple {
   QMap<int, MatNxN> _region_map;
   QMap<int, MatNxN> _curve_map;
   QMap<int, MatNxN> _point_map;
+  QMap<int, int> _id_2_colid;
   QRect _rubberband_rect;
   QPixmap _pixmap;
 
@@ -169,6 +170,7 @@ class Plotter::Imple {
     QMap<int, MatNxN>::iterator iter = _curve_map.begin();
     for (; iter != _curve_map.end(); ++iter) {
       int const& id = iter.key();
+      int const& col_id = _id_2_colid.value(id);
       MatNxN const& data = iter.value();
       QPolygonF poly_line(data.rows());
 
@@ -180,7 +182,7 @@ class Plotter::Imple {
         poly_line[i] = QPointF(x, y);
       }
 
-      QPen curve_pen(colors[id % 6]);
+      QPen curve_pen(colors[col_id % 6]);
       curve_pen.setWidth(2);
       painter->setPen(curve_pen);
       painter->drawPolyline(poly_line);
@@ -242,8 +244,10 @@ void Plotter::setRegionData(int const& id, MatNxN const& data) {
   refreshPixmap();
 }
 
-void Plotter::setCurveData(int const& id, MatNxN const& data) {
+void Plotter::setCurveData(int const& id, MatNxN const& data,
+                           int const& col_id) {
   _p->_curve_map.insert(id, data);
+  _p->_id_2_colid.insert(id, col_id);
   refreshPixmap();
 }
 
